@@ -3,6 +3,8 @@ import axios from 'axios';
 import './App.css';
 import WeathericonComponent from './components/Weathericon.component';
 import CitySearchInputField from './simplecomponents/CitySearchInputField';
+import LocationInfo from './simplecomponents/LocationInfo';
+import WeatherInfoComponent from './components/WeatherInfo.component';
 
 class App extends Component {
   
@@ -37,10 +39,6 @@ class App extends Component {
   getWeatherByCityandLocation = () => {
 
   }
-
-  formatTemperatureByLocale = (temp) => {
-    return temp + ' c°'
-  }
   
   handleCityInputFieldChange = (e) => {
     let city = e.target.value;
@@ -62,20 +60,27 @@ class App extends Component {
       city
     } = this.state;
 
-    
+    const weatherInfo = {
+      description:weather[0].description,
+      temperature : main.temp,
+      minTemperature : main.temp_min,
+      maxTemperature : main.temp_max
+    }
+
+    const locationInfo = {
+      place:place,
+      country :location.country
+    }
     return (
       <div className="content-holder">
-       <div className="main-title">{place} | {location.country}</div>
-       <div>{weather[0].description}</div>
+       <LocationInfo {...locationInfo}/>
+       <WeatherInfoComponent {...weatherInfo}>
        <WeathericonComponent status={weather[0].id}/>
-       <div>current temperature: {this.formatTemperatureByLocale(main.temp)}</div>
-       <div style={{fontSize:'0.6rem'}}>lowest:{this.formatTemperatureByLocale(main.temp_min)} | highest:{this.formatTemperatureByLocale(main.temp_max)}</div>
-        <div>
+       </WeatherInfoComponent>
           <CitySearchInputField 
             value={city} 
             handleSubmit={this.handleCityInputFieldSubmit}
             handleChange={this.handleCityInputFieldChange}/>
-          </div>
       </div>
     );
   }

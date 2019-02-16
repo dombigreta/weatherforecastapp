@@ -6,6 +6,8 @@ import CitySearchInputField from './simplecomponents/CitySearchInputField';
 import LocationInfo from './simplecomponents/LocationInfo';
 import WeatherInfoComponent from './components/WeatherInfo.component';
 
+import {UnitContext,units} from './Unit.context';
+
 class App extends Component {
   
   state = {
@@ -13,7 +15,8 @@ class App extends Component {
     location:{},
     main:{},
     place:'',
-    city:''
+    city:'',
+    unit:units.metric
   }
  
   componentWillMount(){
@@ -29,7 +32,7 @@ class App extends Component {
   }
 
   getWeatherInformationByCordinates = (longitude, latitude) => {
-    axios.post('/weather',{longitude:longitude, latitude:latitude})
+    axios.post('/weather/weatherbycordinates',{longitude:longitude, latitude:latitude, unit:this.state.unit})
     .then(reponse => this.setState({weather: reponse.data.weather, 
                                     location:reponse.data.sys,
                                     main:reponse.data.main, 
@@ -37,7 +40,11 @@ class App extends Component {
   };
 
   getWeatherByCityandLocation = () => {
-
+    axios.post('/weather/weatherbycityname',{city:this.state.city, unit:this.state.unit})
+    .then(reponse => this.setState({weather: reponse.data.weather, 
+                                    location:reponse.data.sys,
+                                    main:reponse.data.main, 
+                                    place:reponse.data.name}));
   }
   
   handleCityInputFieldChange = (e) => {
@@ -47,6 +54,7 @@ class App extends Component {
 
   handleCityInputFieldSubmit = (e) => {
     e.preventDefault();
+    this.getWeatherByCityandLocation();
   }
 
   render() {
@@ -57,9 +65,9 @@ class App extends Component {
       location,
       main,
       weather,
-      city
+      city,
+      unit
     } = this.state;
-
     const weatherInfo = {
       description:weather[0].description,
       temperature : main.temp,
@@ -72,16 +80,19 @@ class App extends Component {
       country :location.country
     }
     return (
-      <div className="content-holder">
-       <LocationInfo {...locationInfo}/>
-       <WeatherInfoComponent {...weatherInfo}>
-       <WeathericonComponent status={weather[0].id}/>
-       </WeatherInfoComponent>
-          <CitySearchInputField 
-            value={city} 
-            handleSubmit={this.handleCityInputFieldSubmit}
-            handleChange={this.handleCityInputFieldChange}/>
-      </div>
+      <UnitContext.Provider value={unit}>
+        unit:<button>metric</button><button>imperial</button>
+        <div className="content-holder">
+        <LocationInfo {...locationInfo}/>
+        <WeatherInfoComponent {...weatherInfo}>
+        <WeathericonComponent status={weather[0].id}/>
+        </WeatherInfoComponent>
+            <CitySearchInputField 
+              value={city} 
+              handleSubmit={this.handleCityInputFieldSubmit}
+              handleChange={this.handleCityInputFieldChange}/>
+        </div>
+      </UnitContext.Provider>
     );
   }
 }

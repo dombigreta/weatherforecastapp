@@ -11,6 +11,12 @@ export class WeatherProvider extends Component{
     state = {
         weatherInfo:{},
         locationInfo:{},
+        cordinates:{
+            longitude:undefined,
+            locationInfo:undefined
+        },
+        city:'',
+        isWeatherByCordinates:true,
         isLoading:true,
         currentUnit:units.metric,
         changeUnit: (unit) => this.changeUnit(unit),
@@ -24,20 +30,37 @@ export class WeatherProvider extends Component{
     }
 
     geCurrentLocation = () => {
-        navigator.geolocation.getCurrentPosition((position) => {
-            this.getWeatherInformationByCordinates(position.coords.longitude,position.coords.latitude);
-        });
+        this.setState({isLoading:true});
+        if(this.state.isWeatherByCordinates){ 
+                if(this.state.cordinates.longitude !== undefined &&  this.state.cordinates.latitude !== undefined){
+                    this.getWeatherInformationByCordinates();
+                }
+                else{
+                        navigator.geolocation.getCurrentPosition((position) => {
+                            let cordinates = {
+                                longitude:position.coords.longitude,
+                                latitude:position.coords.latitude
+                            };
+                            this.setState({cordinates:cordinates}, () => 
+                            this.getWeatherInformationByCordinates());
+                    });
+                }
+
+        }
+        else this.getWeatherByCityandLocation();
+
     }
 
-   getWeatherInformationByCordinates = (longitude, latitude) => {
+    getWeatherInformationByCordinates = () => {
+    const {longitude, latitude} = this.state.cordinates;
     axios.post('/weather/weatherbycordinates',{longitude:longitude, latitude:latitude, unit:this.state.currentUnit})
     .then(reponse => this.setWeatherAndLocationInformation(reponse.data))
-      .then(() => setTimeout(() => this.setState({isLoading:false}),500));
+      .then(() => setTimeout(() => this.setState({isLoading:false}),500))
+      .catch(err => console.log(err));
     }
 
-    getWeatherByCityandLocation = (city) => {
-        this.setState({isLoading:true});
-        axios.post('/weather/weatherbycityname',{city:city, unit:this.state.currentUnit})
+    getWeatherByCityandLocation = () => {
+        axios.post('/weather/weatherbycityname',{city:this.state.city, unit:this.state.currentUnit})
         .then(reponse => this.setWeatherAndLocationInformation(reponse.data))
         .then(() => setTimeout(() => this.setState({isLoading:false}),500));
     }
@@ -60,11 +83,11 @@ export class WeatherProvider extends Component{
     }
 
     changeUnit(unit){
-        this.setState({currentUnit:unit});
+        this.setState({currentUnit:unit}, () => this.geCurrentLocation());
     }
 
     handleCityInputFieldSubmit = (city) => {
-        this.getWeatherByCityandLocation(city);
+        this.setState({city:city, isWeatherByCordinates:false},() => this.geCurrentLocation());
     }
     render(){
       return <Context.Provider value={this.state}>

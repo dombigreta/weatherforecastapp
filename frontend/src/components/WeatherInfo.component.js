@@ -1,21 +1,24 @@
 import React, { Component } from 'react';
-import {UnitContext, units} from '../Unit.context';
 
-class WeatherInfoComponent extends  Component {
+import {Consumer,units} from '../Weather.context';
+
+class WeatherInfoComponent extends Component {
     formatTemperatureByUnit = (unit, temperature ) => {
-        return temperature + ' ' + (unit === units.metric ? '°c' : '°F')
+       return temperature + ' ' + (unit === units.metric ? '°C' : '°F');
     }
     render(){
         return(
-            <UnitContext.Consumer>{
-                (value) => <React.Fragment> 
-                <div>{this.props.description}</div>
-                {this.props.children}
-                <div> current temperature: {this.formatTemperatureByUnit(value, this.props.temperature)}</div>
-                <div>lowest: {this.formatTemperatureByUnit(value, this.props.minTemperature)} | highest: {this.formatTemperatureByUnit(value, this.props.maxTemperature)}</div>
-                    </React.Fragment>
-            }
-            </UnitContext.Consumer>
+              <Consumer>
+                  {
+                      ({currentUnit}) => <React.Fragment> 
+                                    <div>{this.props.description}</div>
+                                    {this.props.children}
+                                    <div> current temperature: {this.formatTemperatureByUnit(currentUnit, this.props.temperature)}</div>
+                                    <div>lowest: {this.formatTemperatureByUnit(currentUnit, this.props.minTemperature)} | highest: {this.formatTemperatureByUnit(currentUnit, this.props.maxTemperature)}</div>
+                                </React.Fragment>
+
+                  }
+                  </Consumer>
         );
     }
 }

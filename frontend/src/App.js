@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import './App.css';
 import WeathericonComponent from './components/Weathericon.component';
-import CitySearchInputField from './simplecomponents/CitySearchInputField';
+//import CitySearchInputField from './simplecomponents/CitySearchInputField';
+import CountryAutoSuggestFieldComponent from './components/CountryAutoSuggestField.component';
 import LocationInfo from './simplecomponents/LocationInfo';
 import WeatherInfoComponent from './components/WeatherInfo.component';
 
@@ -47,10 +48,7 @@ class App extends Component {
                               <ToggleButton onClick={() => changeUnit(units.metric)} style={{color:'#ffffff'}} value="left">{units.metric}</ToggleButton>
                               <ToggleButton onClick={() => changeUnit(units.imperial)} style={{color:'#ffffff'}} value="right">{units.imperial}</ToggleButton>
                               </ToggleButtonGroup>             
-                                <CitySearchInputField 
-                                  value={weatherInfo.city} 
-                                  handleChange={this.handleCityInputFieldChange}
-                                  handleSubmit={(e) => this.handleCityInputFieldSubmit(e, handleCityInputFieldSubmit)}/>
+                              <CountryAutoSuggestFieldComponent />
                           </div>
           )
             }

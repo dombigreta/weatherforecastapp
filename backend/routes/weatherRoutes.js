@@ -14,4 +14,9 @@ router.post('/weatherbycityname', (req,res,next) => {
     .then((reponse) => res.send(reponse.data));
 });
 
+router.post('/getCities',(req,res,next) => {
+    axios.get(`http://gd.geobytes.com/AutoCompleteCity?&q=${req.body.value}`)
+    .then((response) => res.send(response.data));
+});
+
 module.exports = router;
